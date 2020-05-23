@@ -1,0 +1,256 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2512
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red26\green26\blue26;\red255\green255\blue255;\red16\green60\blue192;
+}
+{\*\expandedcolortbl;;\cssrgb\c13333\c13333\c13333;\cssrgb\c100000\c100000\c100000;\cssrgb\c6667\c33333\c80000;
+}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 #include <SparkFunDS1307RTC.h>\
+#include <Wire.h>\
+\
+//commemt out line below if you want month printed before date.\
+//E.g. October 13, 2020: 10/13/20 vs 13/10/20\
+#define PRINT_USA_DATE\
+\
+#define SQW_INPUT_PIN 2 //Input pin to read SQW\
+#define SQW_OUTPUT_PIN 13 // LED to indicate SQW's state\
+\
+// Toggle for Anode or Cathode Display\
+#define SEGMENT_ON HIGH\
+#define SEGMENT_OFF LOW\
+\
+//---seconds Digit Segments (00:00:0X)\
+int seg_hrsA = 23; // segment 1, digit 1\
+int seg_hrsB = 25;\
+int seg_hrsC = 27;\
+int seg_hrsD = 29;\
+int seg_hrsE = 31;\
+int seg_hrsF = 33;\
+int seg_hrsG = 35;\
+//----10's seconds (00:00:X0)\
+int seg_hrsA1 = 22;\
+int seg_hrsB1 = 24;\
+int seg_hrsC1 = 26;\
+int seg_hrsD1 = 28;\
+int seg_hrsE1 = 30;\
+int seg_hrsF1 = 32;\
+int seg_hrsG1 = 34;\
+\
+void setup() \{\
+\
+Serial.begin(9600);\
+pinMode(SQW_INPUT_PIN, INPUT_PULLUP);\
+pinMode(SQW_OUTPUT_PIN, OUTPUT);\
+digitalWrite(SQW_OUTPUT_PIN,digitalRead(SQW_INPUT_PIN));\
+\
+rtc.begin(); // initialize the library\
+rtc.writeSQW(SQW_SQUARE_1);//1Hz square wave\
+//Getting information from RTC (RealTimeClock)-------------\
+rtc.update(); // Update RTC data\
+\
+// Read the time:\
+int s = rtc.second();\
+int m = rtc.minute();\
+int h = rtc.hour();\
+\
+// Read the day/date:\
+int dy = rtc.day();\
+int da = rtc.date();\
+int mo = rtc.month();\
+int yr = rtc.year();\
+\
+//----Setting up pinModes for output to segements\
+// Hours Digit -------------------------------0[x]:00:00\
+pinMode(seg_hrsA,OUTPUT);\
+pinMode(seg_hrsB,OUTPUT);\
+pinMode(seg_hrsC,OUTPUT);\
+pinMode(seg_hrsD,OUTPUT);\
+pinMode(seg_hrsE,OUTPUT);\
+pinMode(seg_hrsF,OUTPUT);\
+pinMode(seg_hrsG,OUTPUT);\
+// Hours 10's -------------(X0:00:00)\
+pinMode(seg_hrsA1,OUTPUT);\
+pinMode(seg_hrsB1,OUTPUT);\
+pinMode(seg_hrsC1,OUTPUT);\
+pinMode(seg_hrsD1,OUTPUT);\
+pinMode(seg_hrsE1,OUTPUT);\
+pinMode(seg_hrsF1,OUTPUT);\
+pinMode(seg_hrsG1,OUTPUT);\
+\}\
+\
+void loop()\
+\{\
+\'a0 static int8_t lastSecond = -1;\
+\'a0\
+\'a0 // Call rtc.update() to update all rtc.seconds(), rtc.minutes(),\
+\'a0 // etc. return functions.\
+\'a0 rtc.update();\
+\
+\'a0 if (rtc.second() != lastSecond) // If the second has changed\
+\'a0 \{\
+\'a0 \'a0 printTime(); // Print the new time\
+\'a0 \'a0\
+\'a0 \'a0 lastSecond = rtc.second(); // Update lastSecond value\
+\'a0 \}\
+\
+\'a0 // Read the state of the SQW pin and show it on the\
+\'a0 // pin 13 LED. (It should blink at 1Hz.)\
+\'a0 digitalRead(SQW_INPUT_PIN);\
+\
+// Hours Digit -------------------------------0[x]:00:00\
+if (rtc.hour()%10 == 0)\{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_OFF);\
+\'a0\}\
+\'a0else if (rtc.hour()%10 == 1)\{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_OFF);\
+\'a0\}\
+else if (rtc.hour()%10 == 2)\{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\}\
+else if (rtc.hour()%10 == 3) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\'a0\}\
+else if (rtc.hour()%10 == 4) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\}\
+else if (rtc.hour()%10 == 5) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\}\
+else if (rtc.hour()%10 == 6) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\}\
+else if (rtc.hour()%10 == 7) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_OFF);\
+\}\
+else if (rtc.hour()%10 == 8) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\}\
+else if (rtc.hour()%10 == 9) \{\
+\'a0 digitalWrite(seg_hrsA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG, SEGMENT_ON);\
+\}\
+// Hours 10's digit ------------------------------- [x]0:00:00\
+if (rtc.hour()-(rtc.hour() %10) == 0)\{\
+\'a0 digitalWrite(seg_hrsA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsG1, SEGMENT_OFF);\
+\'a0\}\
+\'a0else if (rtc.minute()-(rtc.minute() %10) == 10)\{\
+\'a0 digitalWrite(seg_hrsA1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsD1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsG1, SEGMENT_OFF);\
+\'a0\}\
+\'a0 else if (rtc.hour()-(rtc.hour() %10) == 20)\{\
+\'a0 digitalWrite(seg_hrsA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsC1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsE1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_hrsF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_hrsG1, SEGMENT_ON);\
+\'a0 \}\
+\}\
+void printTime()\
+\{\
+\'a0 Serial.print(String(rtc.hour()) + ":"); // Print hour\
+\'a0 if (rtc.minute() < 10)\
+\'a0 \'a0 Serial.print('0'); // Print leading '0' for minute\
+\'a0 Serial.print(String(rtc.minute()) + ":"); // Print minute\
+\'a0 if (rtc.second() < 10)\
+\'a0 \'a0 Serial.print('0'); // Print leading '0' for second\
+\'a0 Serial.print(String(rtc.second())); // Print second\
+\
+\'a0 if (rtc.is12Hour()) // If we're in 12-hour mode\
+\'a0 \{\
+\'a0 \'a0 // Use\'a0{\field{\*\fldinst{HYPERLINK "http://rtc.pm/"}}{\fldrslt \cf4 \ul \ulc4 \strokec4 rtc.pm}}() to read the AM/PM state of the hour\
+\'a0 \'a0 if ({\field{\*\fldinst{HYPERLINK "http://rtc.pm/"}}{\fldrslt \cf4 \ul \ulc4 \strokec4 rtc.pm}}()) Serial.print(" PM"); // Returns true if PM\
+\'a0 \'a0 else Serial.print(" AM");\
+\'a0 \}\
+\'a0\
+\'a0 Serial.print(" | ");\
+\
+\'a0 // Few options for printing the day, pick one:\
+\'a0 Serial.print(rtc.dayStr()); // Print day string\
+\'a0 //Serial.print(rtc.dayC()); // Print day character\
+\'a0 //Serial.print(rtc.day()); // Print day integer (1-7, Sun-Sat)\
+\'a0 Serial.print(" - ");\
+#ifdef PRINT_USA_DATE\
+\'a0 Serial.print(String(rtc.month()) + "/" + \'a0 // Print month\
+\'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0String(rtc.date()) + "/"); \'a0// Print date\
+#else\
+\'a0 Serial.print(String(rtc.date()) + "/" + \'a0 \'a0// (or) print date\
+\'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0String(rtc.month()) + "/"); // Print month\
+#endif\
+\'a0 Serial.println(String(rtc.year())); \'a0 \'a0 \'a0 \'a0// Print year\
+\}}

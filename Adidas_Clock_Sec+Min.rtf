@@ -1,0 +1,467 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2512
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red26\green26\blue26;\red255\green255\blue255;\red16\green60\blue192;
+}
+{\*\expandedcolortbl;;\cssrgb\c13333\c13333\c13333;\cssrgb\c100000\c100000\c100000;\cssrgb\c6667\c33333\c80000;
+}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 #include <SparkFunDS1307RTC.h>\
+#include <Wire.h>\
+\
+//commemt out line below if you want month printed before date.\
+//E.g. October 13, 2020: 10/13/20 vs 13/10/20\
+#define PRINT_USA_DATE\
+\
+#define SQW_INPUT_PIN 2 //Input pin to read SQW\
+#define SQW_OUTPUT_PIN 13 // LED to indicate SQW's state\
+\
+// Toggle for Anode or Cathode Display\
+#define SEGMENT_ON HIGH\
+#define SEGMENT_OFF LOW\
+\
+//---seconds Digit Segments (00:00:0X)\
+int seg_secA = 23; // segment 1, digit 1\
+int seg_secB = 25;\
+int seg_secC = 27;\
+int seg_secD = 29;\
+int seg_secE = 31;\
+int seg_secF = 33;\
+int seg_secG = 35;\
+//----10's seconds (00:00:X0)\
+int seg_secA1 = 22;\
+int seg_secB1 = 24;\
+int seg_secC1 = 26;\
+int seg_secD1 = 28;\
+int seg_secE1 = 30;\
+int seg_secF1 = 32;\
+int seg_secG1 = 34;\
+//---- minutes (00:0X:00)\
+int seg_minA = 41;\
+int seg_minB = 43;\
+int seg_minC = 45;\
+int seg_minD = 47;\
+int seg_minE = 49;\
+int seg_minF = 51;\
+int seg_minG = 53;\
+//---- 10's minutes (00:X0:00)\
+int seg_minA1 = 40;\
+int seg_minB1 = 42;\
+int seg_minC1 = 44;\
+int seg_minD1 = 46;\
+int seg_minE1 = 48;\
+int seg_minF1 = 50;\
+int seg_minG1 = 52;\
+\
+void setup() \{\
+\
+Serial.begin(9600);\
+pinMode(SQW_INPUT_PIN, INPUT_PULLUP);\
+rtc.begin(); // initialize the library\
+rtc.writeSQW(SQW_SQUARE_1);//1Hz square wave\
+//Getting information from RTC (RealTimeClock)-------------\
+rtc.update(); // Update RTC data\
+\
+// Read the time:\
+int s = rtc.second();\
+int m = rtc.minute();\
+int h = rtc.hour();\
+\
+// Read the day/date:\
+int dy = rtc.day();\
+int da = rtc.date();\
+int mo = rtc.month();\
+int yr = rtc.year();\
+\
+//----Setting up pinModes for output to segements\
+//---- Seconds ---- (00:00:0X)\
+pinMode(seg_secA,OUTPUT);\
+pinMode(seg_secB,OUTPUT);\
+pinMode(seg_secC,OUTPUT);\
+pinMode(seg_secD,OUTPUT);\
+pinMode(seg_secE,OUTPUT);\
+pinMode(seg_secF,OUTPUT);\
+pinMode(seg_secG,OUTPUT);\
+//---- Seconds, 10's ---- (00:00:X0)\
+pinMode(seg_secA1,OUTPUT);\
+pinMode(seg_secB1,OUTPUT);\
+pinMode(seg_secC1,OUTPUT);\
+pinMode(seg_secD1,OUTPUT);\
+pinMode(seg_secE1,OUTPUT);\
+pinMode(seg_secF1,OUTPUT);\
+pinMode(seg_secG1,OUTPUT);\
+//---- Minutes ---- (00:0X:00)\
+pinMode(seg_minA,OUTPUT);\
+pinMode(seg_minB,OUTPUT);\
+pinMode(seg_minC,OUTPUT);\
+pinMode(seg_minD,OUTPUT);\
+pinMode(seg_minE,OUTPUT);\
+pinMode(seg_minF,OUTPUT);\
+pinMode(seg_minG,OUTPUT);\
+//---- Minutes, 10' ---- (00:X0:00)\
+pinMode(seg_minA1,OUTPUT);\
+pinMode(seg_minB1,OUTPUT);\
+pinMode(seg_minC1,OUTPUT);\
+pinMode(seg_minD1,OUTPUT);\
+pinMode(seg_minE1,OUTPUT);\
+pinMode(seg_minF1,OUTPUT);\
+pinMode(seg_minG1,OUTPUT);\
+\}\
+\
+void loop()\
+\{\
+\'a0 static int8_t lastSecond = -1;\
+\'a0\
+\'a0 // Call rtc.update() to update all rtc.seconds(), rtc.minutes(),\
+\'a0 // etc. return functions.\
+\'a0 rtc.update();\
+\
+\'a0 if (rtc.second() != lastSecond) // If the second has changed\
+\'a0 \{\
+\'a0 \'a0 printTime(); // Print the new time\
+\'a0 \'a0\
+\'a0 \'a0 lastSecond = rtc.second(); // Update lastSecond value\
+\'a0 \}\
+\
+\'a0 // Read the state of the SQW pin and show it on the\
+\'a0 // pin 13 LED. (It should blink at 1Hz.)\
+\'a0 digitalRead(SQW_INPUT_PIN);\
+\
+//turn all digits off\
+\'a0 digitalWrite(seg_secA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secC, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG, SEGMENT_OFF);\
+\
+//Seconds Digit ------------------------------------------00:00:0[x]\
+\'a0if (rtc.second()%10 == 0)\{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG, SEGMENT_OFF);\
+\'a0\}\
+\'a0else if (rtc.second()%10 == 1)\{\
+\'a0 digitalWrite(seg_secA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG, SEGMENT_OFF);\
+\'a0\}\
+else if (rtc.second()%10 == 2)\{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\}\
+else if (rtc.second()%10 == 3) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\'a0\}\
+else if (rtc.second()%10 == 4) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\}\
+else if (rtc.second()%10 == 5) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\}\
+else if (rtc.second()%10 == 6) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\}\
+else if (rtc.second()%10 == 7) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG, SEGMENT_OFF);\
+\}\
+else if (rtc.second()%10 == 8) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\}\
+else if (rtc.second()%10 == 9) \{\
+\'a0 digitalWrite(seg_secA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG, SEGMENT_ON);\
+\}\
+// seconds 10's digit ------------------------------- 00:00:[x]0\
+if (rtc.second()-(rtc.second() %10) == 0)\{\
+\'a0 digitalWrite(seg_secA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG1, SEGMENT_OFF);\
+\'a0\}\
+\'a0else if (rtc.second()-(rtc.second() %10) == 10)\{\
+\'a0 digitalWrite(seg_secA1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG1, SEGMENT_OFF);\
+\'a0\}\
+\'a0 else if (rtc.second()-(rtc.second() %10) == 20)\{\
+\'a0 digitalWrite(seg_secA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG1, SEGMENT_ON);\
+\'a0\}\
+\'a0 else if (rtc.second()-(rtc.second() %10) == 30)\{\
+\'a0 digitalWrite(seg_secA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secG1, SEGMENT_ON);\
+\'a0\}\
+\'a0else if (rtc.second()-(rtc.second() %10) == 40)\{\
+\'a0 digitalWrite(seg_secA1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG1, SEGMENT_ON);\
+\'a0\}\
+\'a0 else if (rtc.second()-(rtc.second() %10) == 50)\{\
+\'a0 digitalWrite(seg_secA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secB1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_secF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_secG1, SEGMENT_ON);\
+\'a0\}\
+//Minutes Digit----------------------------------------- 00:0[x]:00\
+if (rtc.minute()%10 == 0)\{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG, SEGMENT_OFF);\
+\'a0\}\
+\'a0else if (rtc.minute()%10 == 1)\{\
+\'a0 digitalWrite(seg_minA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG, SEGMENT_OFF);\
+\'a0\}\
+else if (rtc.minute()%10 == 2)\{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\}\
+else if (rtc.minute()%10 == 3) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\'a0\}\
+else if (rtc.minute()%10 == 4) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\}\
+else if (rtc.minute()%10 == 5) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\}\
+else if (rtc.minute()%10 == 6) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\}\
+else if (rtc.minute()%10 == 7) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG, SEGMENT_OFF);\
+\}\
+else if (rtc.minute()%10 == 8) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\}\
+else if (rtc.minute()%10 == 9) \{\
+\'a0 digitalWrite(seg_minA, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG, SEGMENT_ON);\
+\}\
+// minutes 10's digit ------------------------------- 00:[x]0:00\
+if (rtc.minute()-(rtc.minute() %10) == 0)\{\
+\'a0 digitalWrite(seg_minA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG1, SEGMENT_OFF);\
+\'a0\}\
+\'a0else if (rtc.minute()-(rtc.minute() %10) == 10)\{\
+\'a0 digitalWrite(seg_minA1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG1, SEGMENT_OFF);\
+\'a0\}\
+\'a0 else if (rtc.minute()-(rtc.minute() %10) == 20)\{\
+\'a0 digitalWrite(seg_minA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG1, SEGMENT_ON);\
+\'a0\}\
+\'a0 else if (rtc.minute()-(rtc.minute() %10) == 30)\{\
+\'a0 digitalWrite(seg_minA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minG1, SEGMENT_ON);\
+\'a0\}\
+\'a0else if (rtc.minute()-(rtc.minute() %10) == 40)\{\
+\'a0 digitalWrite(seg_minA1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minB1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG1, SEGMENT_ON);\
+\'a0\}\
+\'a0 else if (rtc.minute()-(rtc.minute() %10) == 50)\{\
+\'a0 digitalWrite(seg_minA1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minB1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minC1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minD1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minE1, SEGMENT_OFF);\
+\'a0 digitalWrite(seg_minF1, SEGMENT_ON);\
+\'a0 digitalWrite(seg_minG1, SEGMENT_ON);\
+\'a0\}\
+\}\
+void printTime()\
+\{\
+\'a0 Serial.print(String(rtc.hour()) + ":"); // Print hour\
+\'a0 if (rtc.minute() < 10)\
+\'a0 \'a0 Serial.print('0'); // Print leading '0' for minute\
+\'a0 Serial.print(String(rtc.minute()) + ":"); // Print minute\
+\'a0 if (rtc.second() < 10)\
+\'a0 \'a0 Serial.print('0'); // Print leading '0' for second\
+\'a0 Serial.print(String(rtc.second())); // Print second\
+\
+\'a0 if (rtc.is12Hour()) // If we're in 12-hour mode\
+\'a0 \{\
+\'a0 \'a0 // Use\'a0{\field{\*\fldinst{HYPERLINK "http://rtc.pm/"}}{\fldrslt \cf4 \ul \ulc4 \strokec4 rtc.pm}}() to read the AM/PM state of the hour\
+\'a0 \'a0 if ({\field{\*\fldinst{HYPERLINK "http://rtc.pm/"}}{\fldrslt \cf4 \ul \ulc4 \strokec4 rtc.pm}}()) Serial.print(" PM"); // Returns true if PM\
+\'a0 \'a0 else Serial.print(" AM");\
+\'a0 \}\
+\'a0\
+\'a0 Serial.print(" | ");\
+\
+\'a0 // Few options for printing the day, pick one:\
+\'a0 Serial.print(rtc.dayStr()); // Print day string\
+\'a0 //Serial.print(rtc.dayC()); // Print day character\
+\'a0 //Serial.print(rtc.day()); // Print day integer (1-7, Sun-Sat)\
+\'a0 Serial.print(" - ");\
+#ifdef PRINT_USA_DATE\
+\'a0 Serial.print(String(rtc.month()) + "/" + \'a0 // Print month\
+\'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0String(rtc.date()) + "/"); \'a0// Print date\
+#else\
+\'a0 Serial.print(String(rtc.date()) + "/" + \'a0 \'a0// (or) print date\
+\'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0 \'a0String(rtc.month()) + "/"); // Print month\
+#endif\
+\'a0 Serial.println(String(rtc.year())); \'a0 \'a0 \'a0 \'a0// Print year\
+\}}
