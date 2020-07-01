@@ -1,0 +1,268 @@
+#include <SparkFunDS1307RTC.h>
+#include <Wire.h>
+
+#define PRINT_USA_DATE
+
+#define SQW_INPUT_PIN 2 //Input pin to read SQW
+#define SQW_OUTPUT_PIN 13 // LED to indicate SQW's state
+
+// Toggle for Anode or Cathode Display
+#define SEGMENT_ON HIGH
+#define SEGMENT_OFF LOW 
+
+int button1 =7;
+int button2 =8;
+
+//---seconds Digit Segments (00:00:0X)
+int seg_hrsA = 23; // segment 1, digit 1
+int seg_hrsB = 25;
+int seg_hrsC = 27;
+int seg_hrsD = 29;
+int seg_hrsE = 31;
+int seg_hrsF = 33;
+int seg_hrsG = 35;
+//----10's seconds (00:00:X0)
+int seg_hrsA1 = 22;
+int seg_hrsB1 = 24;
+int seg_hrsC1 = 26;
+int seg_hrsD1 = 28;
+int seg_hrsE1 = 30;
+int seg_hrsF1 = 32;
+int seg_hrsG1 = 34;
+
+void setup() {
+
+Serial.begin(9600);
+pinMode(SQW_INPUT_PIN, INPUT_PULLUP);
+pinMode(SQW_OUTPUT_PIN, OUTPUT);
+digitalWrite(SQW_OUTPUT_PIN,digitalRead(SQW_INPUT_PIN));
+
+rtc.begin(); // initialize the library
+rtc.writeSQW(SQW_SQUARE_1);//1Hz square wave
+//Getting information from RTC (RealTimeClock)-------------
+rtc.update(); // Update RTC data
+
+// Read the time:
+int s = rtc.second();
+int m = rtc.minute();
+int h = rtc.hour();
+
+// Read the day/date:
+int dy = rtc.day();
+int da = rtc.date();
+int mo = rtc.month();
+int yr = rtc.year();
+
+//----Setting up pinModes for output to segements
+// Hours Digit -------------------------------0[x]:00:00 
+pinMode(seg_hrsA,OUTPUT);
+pinMode(seg_hrsB,OUTPUT);
+pinMode(seg_hrsC,OUTPUT);
+pinMode(seg_hrsD,OUTPUT);
+pinMode(seg_hrsE,OUTPUT);
+pinMode(seg_hrsF,OUTPUT);
+pinMode(seg_hrsG,OUTPUT);
+// Hours 10's -------------(X0:00:00)
+pinMode(seg_hrsA1,OUTPUT);
+pinMode(seg_hrsB1,OUTPUT);
+pinMode(seg_hrsC1,OUTPUT);
+pinMode(seg_hrsD1,OUTPUT);
+pinMode(seg_hrsE1,OUTPUT);
+pinMode(seg_hrsF1,OUTPUT);
+pinMode(seg_hrsG1,OUTPUT);
+}
+
+void loop() 
+{
+  static int8_t lastSecond = -1;
+  
+  // Call rtc.update() to update all rtc.seconds(), rtc.minutes(),
+  // etc. return functions.
+  rtc.update();
+
+  if (rtc.second() != lastSecond) // If the second has changed
+  {
+    printTime(); // Print the new time
+    
+    lastSecond = rtc.second(); // Update lastSecond value
+  }
+
+  // Read the state of the SQW pin and show it on the
+  // pin 13 LED. (It should blink at 1Hz.)
+  digitalRead(SQW_INPUT_PIN);
+
+// Hours Digit -------------------------------0[x]:00:00 
+if (rtc.hour()%10 == 0){
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_ON);
+  digitalWrite(seg_hrsF, SEGMENT_ON);
+  digitalWrite(seg_hrsG, SEGMENT_OFF);
+ }
+ else if (rtc.hour()%10 == 1){
+  digitalWrite(seg_hrsA, SEGMENT_OFF);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_OFF);
+  digitalWrite(seg_hrsE, SEGMENT_OFF);
+  digitalWrite(seg_hrsF, SEGMENT_OFF);
+  digitalWrite(seg_hrsG, SEGMENT_OFF);
+ }
+else if (rtc.hour()%10 == 2){
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_OFF);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_ON);
+  digitalWrite(seg_hrsF, SEGMENT_OFF);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+}
+else if (rtc.hour()%10 == 3) {
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_OFF);
+  digitalWrite(seg_hrsF, SEGMENT_OFF);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+ }
+else if (rtc.hour()%10 == 4) {
+  digitalWrite(seg_hrsA, SEGMENT_OFF);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_OFF);
+  digitalWrite(seg_hrsE, SEGMENT_OFF);
+  digitalWrite(seg_hrsF, SEGMENT_ON);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+}
+else if (rtc.hour()%10 == 5) {
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_OFF);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_OFF);
+  digitalWrite(seg_hrsF, SEGMENT_ON);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+}
+else if (rtc.hour()%10 == 6) {
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_OFF);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_ON);
+  digitalWrite(seg_hrsF, SEGMENT_ON);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+}
+else if (rtc.hour()%10 == 7) {
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_OFF);
+  digitalWrite(seg_hrsE, SEGMENT_OFF);
+  digitalWrite(seg_hrsF, SEGMENT_OFF);
+  digitalWrite(seg_hrsG, SEGMENT_OFF);
+}
+else if (rtc.hour()%10 == 8) {
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_ON);
+  digitalWrite(seg_hrsF, SEGMENT_ON);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+}
+else if (rtc.hour()%10 == 9) {
+  digitalWrite(seg_hrsA, SEGMENT_ON);
+  digitalWrite(seg_hrsB, SEGMENT_ON);
+  digitalWrite(seg_hrsC, SEGMENT_ON);
+  digitalWrite(seg_hrsD, SEGMENT_ON);
+  digitalWrite(seg_hrsE, SEGMENT_OFF);
+  digitalWrite(seg_hrsF, SEGMENT_ON);
+  digitalWrite(seg_hrsG, SEGMENT_ON);
+}
+// Hours 10's digit ------------------------------- [x]0:00:00
+if (rtc.hour()-(rtc.hour() %10) == 0){
+  digitalWrite(seg_hrsA1, SEGMENT_ON);
+  digitalWrite(seg_hrsB1, SEGMENT_ON);
+  digitalWrite(seg_hrsC1, SEGMENT_ON);
+  digitalWrite(seg_hrsD1, SEGMENT_ON);
+  digitalWrite(seg_hrsE1, SEGMENT_ON);
+  digitalWrite(seg_hrsF1, SEGMENT_ON);
+  digitalWrite(seg_hrsG1, SEGMENT_OFF);
+ }
+ else if (rtc.hour()-(rtc.hour() %10) == 10){
+  digitalWrite(seg_hrsA1, SEGMENT_OFF);
+  digitalWrite(seg_hrsB1, SEGMENT_ON);
+  digitalWrite(seg_hrsC1, SEGMENT_ON);
+  digitalWrite(seg_hrsD1, SEGMENT_OFF);
+  digitalWrite(seg_hrsE1, SEGMENT_OFF);
+  digitalWrite(seg_hrsF1, SEGMENT_OFF);
+  digitalWrite(seg_hrsG1, SEGMENT_OFF);
+ }
+  else if (rtc.hour()-(rtc.hour() %10) == 20){
+  digitalWrite(seg_hrsA1, SEGMENT_ON);
+  digitalWrite(seg_hrsB1, SEGMENT_ON);
+  digitalWrite(seg_hrsC1, SEGMENT_OFF);
+  digitalWrite(seg_hrsD1, SEGMENT_ON);
+  digitalWrite(seg_hrsE1, SEGMENT_ON);
+  digitalWrite(seg_hrsF1, SEGMENT_OFF);
+  digitalWrite(seg_hrsG1, SEGMENT_ON);
+  }
+ if(digitalRead(button1)==HIGH)
+ {
+  AddSecond();
+  delay(100);
+ }
+ if(digitalRead(button2)==HIGH)
+ {
+  SubtractSecond();
+  delay(100);
+ }
+}
+void printTime()
+{
+  Serial.print(String(rtc.hour()) + ":"); // Print hour
+  if (rtc.minute() < 10)
+    Serial.print('0'); // Print leading '0' for minute
+  Serial.print(String(rtc.minute()) + ":"); // Print minute
+  if (rtc.second() < 10)
+    Serial.print('0'); // Print leading '0' for second
+  Serial.print(String(rtc.second())); // Print second
+
+  if (rtc.is12Hour()) // If we're in 12-hour mode
+  {
+    // Use rtc.pm() to read the AM/PM state of the hour
+    if (rtc.pm()) Serial.print(" PM"); // Returns true if PM
+    else Serial.print(" AM");
+  }
+  
+  Serial.print(" | ");
+
+  // Few options for printing the day, pick one:
+  Serial.print(rtc.dayStr()); // Print day string
+  //Serial.print(rtc.dayC()); // Print day character
+  //Serial.print(rtc.day()); // Print day integer (1-7, Sun-Sat)
+  Serial.print(" - ");
+#ifdef PRINT_USA_DATE
+  Serial.print(String(rtc.month()) + "/" +   // Print month
+                 String(rtc.date()) + "/");  // Print date
+#else
+  Serial.print(String(rtc.date()) + "/" +    // (or) print date
+                 String(rtc.month()) + "/"); // Print month
+#endif
+  Serial.println(String(rtc.year()));        // Print year
+}
+void AddSecond()
+{
+  rtc.update();
+  rtc.second()+1;
+  delay(100);
+}
+void SubtractSecond()
+{
+  rtc.update();
+  rtc.second()-1;
+  delay(100);
+}
