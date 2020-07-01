@@ -1,0 +1,486 @@
+#include <SparkFunDS1307RTC.h>
+#include <Wire.h>
+
+#define PRINT_USA_DATE
+
+#define SQW_INPUT_PIN 2 //Input pin to read SQW
+#define SQW_OUTPUT_PIN 13 // LED to indicate SQW's state
+
+// Toggle for Anode or Cathode Display
+#define SEGMENT_ON HIGH
+#define SEGMENT_OFF LOW
+
+int button1 = 7;
+int button2 = 8;
+
+//---seconds Digit Segments (00:00:0X)
+int seg_secA = 23; // segment 1, digit 1
+int seg_secB = 25;
+int seg_secC = 27;
+int seg_secD = 29;
+int seg_secE = 31;
+int seg_secF = 33;
+int seg_secG = 35;
+//----10's seconds (00:00:X0)
+int seg_secA1 = 22;
+int seg_secB1 = 24;
+int seg_secC1 = 26;
+int seg_secD1 = 28;
+int seg_secE1 = 30;
+int seg_secF1 = 32;
+int seg_secG1 = 34;
+//---- minutes (00:0X:00)
+int seg_minA = 41;
+int seg_minB = 43;
+int seg_minC = 45;
+int seg_minD = 47;
+int seg_minE = 49;
+int seg_minF = 51;
+int seg_minG = 53;
+//---- 10's minutes (00:X0:00)
+int seg_minA1 = 40;
+int seg_minB1 = 42;
+int seg_minC1 = 44;
+int seg_minD1 = 46;
+int seg_minE1 = 48;
+int seg_minF1 = 50;
+int seg_minG1 = 52;
+
+void setup() {
+
+Serial.begin(9600);
+Serial.begin(9600);
+pinMode(SQW_INPUT_PIN, INPUT_PULLUP);
+pinMode(SQW_OUTPUT_PIN, OUTPUT);
+digitalWrite(SQW_OUTPUT_PIN,digitalRead(SQW_INPUT_PIN));
+
+rtc.begin(); // initialize the library
+rtc.writeSQW(SQW_SQUARE_1);//1Hz square wave
+//Getting information from RTC (RealTimeClock)-------------
+rtc.update(); // Update RTC data
+
+
+// Read the time:
+int s = rtc.second();
+int m = rtc.minute();
+int h = rtc.hour();
+
+// Read the day/date:
+int dy = rtc.day();
+int da = rtc.date();
+int mo = rtc.month();
+int yr = rtc.year();
+
+//----Setting up pinModes for output to segements
+//---- Seconds ---- (00:00:0X)
+pinMode(seg_secA,OUTPUT);
+pinMode(seg_secB,OUTPUT);
+pinMode(seg_secC,OUTPUT);
+pinMode(seg_secD,OUTPUT);
+pinMode(seg_secE,OUTPUT);
+pinMode(seg_secF,OUTPUT);
+pinMode(seg_secG,OUTPUT);
+//---- Seconds, 10's ---- (00:00:X0)
+pinMode(seg_secA1,OUTPUT);
+pinMode(seg_secB1,OUTPUT);
+pinMode(seg_secC1,OUTPUT);
+pinMode(seg_secD1,OUTPUT);
+pinMode(seg_secE1,OUTPUT);
+pinMode(seg_secF1,OUTPUT);
+pinMode(seg_secG1,OUTPUT);
+//---- Minutes ---- (00:0X:00)
+pinMode(seg_minA,OUTPUT);
+pinMode(seg_minB,OUTPUT);
+pinMode(seg_minC,OUTPUT);
+pinMode(seg_minD,OUTPUT);
+pinMode(seg_minE,OUTPUT);
+pinMode(seg_minF,OUTPUT);
+pinMode(seg_minG,OUTPUT);
+//---- Minutes, 10' ---- (00:X0:00)
+pinMode(seg_minA1,OUTPUT);
+pinMode(seg_minB1,OUTPUT);
+pinMode(seg_minC1,OUTPUT);
+pinMode(seg_minD1,OUTPUT);
+pinMode(seg_minE1,OUTPUT);
+pinMode(seg_minF1,OUTPUT);
+pinMode(seg_minG1,OUTPUT);
+}
+
+void loop() 
+{
+  static int8_t lastSecond = -1;
+  
+  // Call rtc.update() to update all rtc.seconds(), rtc.minutes(),
+  // etc. return functions.
+  rtc.update();
+
+  if (rtc.second() != lastSecond) // If the second has changed
+  {
+    printTime(); // Print the new time
+    
+    lastSecond = rtc.second(); // Update lastSecond value
+  }
+
+  
+
+  // Read the state of the SQW pin and show it on the
+  // pin 13 LED. (It should blink at 1Hz.)
+  digitalRead(SQW_INPUT_PIN);
+
+//turn all digits off
+  digitalWrite(seg_secA, SEGMENT_OFF);
+  digitalWrite(seg_secB, SEGMENT_OFF);
+  digitalWrite(seg_secC, SEGMENT_OFF);
+  digitalWrite(seg_secD, SEGMENT_OFF);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_OFF);
+  digitalWrite(seg_secG, SEGMENT_OFF);
+
+//Seconds Digit ------------------------------------------00:00:0[x]
+ if (rtc.second()%10 == 0){
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_ON);
+  digitalWrite(seg_secF, SEGMENT_ON);
+  digitalWrite(seg_secG, SEGMENT_OFF);
+ }
+ else if (rtc.second()%10 == 1){
+  digitalWrite(seg_secA, SEGMENT_OFF);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_OFF);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_OFF);
+  digitalWrite(seg_secG, SEGMENT_OFF);
+ }
+else if (rtc.second()%10 == 2){
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_OFF);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_ON);
+  digitalWrite(seg_secF, SEGMENT_OFF);
+  digitalWrite(seg_secG, SEGMENT_ON);
+}
+else if (rtc.second()%10 == 3) {
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_OFF);
+  digitalWrite(seg_secG, SEGMENT_ON);
+ }
+else if (rtc.second()%10 == 4) {
+  digitalWrite(seg_secA, SEGMENT_OFF);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_OFF);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_ON);
+  digitalWrite(seg_secG, SEGMENT_ON);
+}
+else if (rtc.second()%10 == 5) {
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_OFF);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_ON);
+  digitalWrite(seg_secG, SEGMENT_ON);
+}
+else if (rtc.second()%10 == 6) {
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_OFF);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_ON);
+  digitalWrite(seg_secF, SEGMENT_ON);
+  digitalWrite(seg_secG, SEGMENT_ON);
+}
+else if (rtc.second()%10 == 7) {
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_OFF);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_OFF);
+  digitalWrite(seg_secG, SEGMENT_OFF);
+}
+else if (rtc.second()%10 == 8) {
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_ON);
+  digitalWrite(seg_secF, SEGMENT_ON);
+  digitalWrite(seg_secG, SEGMENT_ON);
+}
+else if (rtc.second()%10 == 9) {
+  digitalWrite(seg_secA, SEGMENT_ON);
+  digitalWrite(seg_secB, SEGMENT_ON);
+  digitalWrite(seg_secC, SEGMENT_ON);
+  digitalWrite(seg_secD, SEGMENT_ON);
+  digitalWrite(seg_secE, SEGMENT_OFF);
+  digitalWrite(seg_secF, SEGMENT_ON);
+  digitalWrite(seg_secG, SEGMENT_ON);
+}
+// seconds 10's digit ------------------------------- 00:00:[x]0
+if (rtc.second()-(rtc.second() %10) == 0){
+  digitalWrite(seg_secA1, SEGMENT_ON);
+  digitalWrite(seg_secB1, SEGMENT_ON);
+  digitalWrite(seg_secC1, SEGMENT_ON);
+  digitalWrite(seg_secD1, SEGMENT_ON);
+  digitalWrite(seg_secE1, SEGMENT_ON);
+  digitalWrite(seg_secF1, SEGMENT_ON);
+  digitalWrite(seg_secG1, SEGMENT_OFF);
+ }
+ else if (rtc.second()-(rtc.second() %10) == 10){
+  digitalWrite(seg_secA1, SEGMENT_OFF);
+  digitalWrite(seg_secB1, SEGMENT_ON);
+  digitalWrite(seg_secC1, SEGMENT_ON);
+  digitalWrite(seg_secD1, SEGMENT_OFF);
+  digitalWrite(seg_secE1, SEGMENT_OFF);
+  digitalWrite(seg_secF1, SEGMENT_OFF);
+  digitalWrite(seg_secG1, SEGMENT_OFF);
+ }
+  else if (rtc.second()-(rtc.second() %10) == 20){
+  digitalWrite(seg_secA1, SEGMENT_ON);
+  digitalWrite(seg_secB1, SEGMENT_ON);
+  digitalWrite(seg_secC1, SEGMENT_OFF);
+  digitalWrite(seg_secD1, SEGMENT_ON);
+  digitalWrite(seg_secE1, SEGMENT_ON);
+  digitalWrite(seg_secF1, SEGMENT_OFF);
+  digitalWrite(seg_secG1, SEGMENT_ON);
+ }
+  else if (rtc.second()-(rtc.second() %10) == 30){
+  digitalWrite(seg_secA1, SEGMENT_ON);
+  digitalWrite(seg_secB1, SEGMENT_ON);
+  digitalWrite(seg_secC1, SEGMENT_ON);
+  digitalWrite(seg_secD1, SEGMENT_ON);
+  digitalWrite(seg_secE1, SEGMENT_OFF);
+  digitalWrite(seg_secF1, SEGMENT_OFF);
+  digitalWrite(seg_secG1, SEGMENT_ON);
+ }
+ else if (rtc.second()-(rtc.second() %10) == 40){
+  digitalWrite(seg_secA1, SEGMENT_OFF);
+  digitalWrite(seg_secB1, SEGMENT_ON);
+  digitalWrite(seg_secC1, SEGMENT_ON);
+  digitalWrite(seg_secD1, SEGMENT_OFF);
+  digitalWrite(seg_secE1, SEGMENT_OFF);
+  digitalWrite(seg_secF1, SEGMENT_ON);
+  digitalWrite(seg_secG1, SEGMENT_ON);
+ }
+  else if (rtc.second()-(rtc.second() %10) == 50){
+  digitalWrite(seg_secA1, SEGMENT_ON);
+  digitalWrite(seg_secB1, SEGMENT_OFF);
+  digitalWrite(seg_secC1, SEGMENT_ON);
+  digitalWrite(seg_secD1, SEGMENT_ON);
+  digitalWrite(seg_secE1, SEGMENT_OFF);
+  digitalWrite(seg_secF1, SEGMENT_ON);
+  digitalWrite(seg_secG1, SEGMENT_ON);
+ }
+//Minutes Digit----------------------------------------- 00:0[x]:00
+if (rtc.minute()%10 == 0){
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_ON);
+  digitalWrite(seg_minF, SEGMENT_ON);
+  digitalWrite(seg_minG, SEGMENT_OFF);
+ }
+ else if (rtc.minute()%10 == 1){
+  digitalWrite(seg_minA, SEGMENT_OFF);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_OFF);
+  digitalWrite(seg_minE, SEGMENT_OFF);
+  digitalWrite(seg_minF, SEGMENT_OFF);
+  digitalWrite(seg_minG, SEGMENT_OFF);
+ }
+else if (rtc.minute()%10 == 2){
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_OFF);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_ON);
+  digitalWrite(seg_minF, SEGMENT_OFF);
+  digitalWrite(seg_minG, SEGMENT_ON);
+}
+else if (rtc.minute()%10 == 3) {
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_OFF);
+  digitalWrite(seg_minF, SEGMENT_OFF);
+  digitalWrite(seg_minG, SEGMENT_ON);
+ }
+else if (rtc.minute()%10 == 4) {
+  digitalWrite(seg_minA, SEGMENT_OFF);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_OFF);
+  digitalWrite(seg_minE, SEGMENT_OFF);
+  digitalWrite(seg_minF, SEGMENT_ON);
+  digitalWrite(seg_minG, SEGMENT_ON);
+}
+else if (rtc.minute()%10 == 5) {
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_OFF);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_OFF);
+  digitalWrite(seg_minF, SEGMENT_ON);
+  digitalWrite(seg_minG, SEGMENT_ON);
+}
+else if (rtc.minute()%10 == 6) {
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_OFF);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_ON);
+  digitalWrite(seg_minF, SEGMENT_ON);
+  digitalWrite(seg_minG, SEGMENT_ON);
+}
+else if (rtc.minute()%10 == 7) {
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_OFF);
+  digitalWrite(seg_minE, SEGMENT_OFF);
+  digitalWrite(seg_minF, SEGMENT_OFF);
+  digitalWrite(seg_minG, SEGMENT_OFF);
+}
+else if (rtc.minute()%10 == 8) {
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_ON);
+  digitalWrite(seg_minF, SEGMENT_ON);
+  digitalWrite(seg_minG, SEGMENT_ON);
+}
+else if (rtc.minute()%10 == 9) {
+  digitalWrite(seg_minA, SEGMENT_ON);
+  digitalWrite(seg_minB, SEGMENT_ON);
+  digitalWrite(seg_minC, SEGMENT_ON);
+  digitalWrite(seg_minD, SEGMENT_ON);
+  digitalWrite(seg_minE, SEGMENT_OFF);
+  digitalWrite(seg_minF, SEGMENT_ON);
+  digitalWrite(seg_minG, SEGMENT_ON);
+}
+// minutes 10's digit ------------------------------- 00:[x]0:00
+if (rtc.minute()-(rtc.minute() %10) == 0){
+  digitalWrite(seg_minA1, SEGMENT_ON);
+  digitalWrite(seg_minB1, SEGMENT_ON);
+  digitalWrite(seg_minC1, SEGMENT_ON);
+  digitalWrite(seg_minD1, SEGMENT_ON);
+  digitalWrite(seg_minE1, SEGMENT_ON);
+  digitalWrite(seg_minF1, SEGMENT_ON);
+  digitalWrite(seg_minG1, SEGMENT_OFF);
+ }
+ else if (rtc.minute()-(rtc.minute() %10) == 10){
+  digitalWrite(seg_minA1, SEGMENT_OFF);
+  digitalWrite(seg_minB1, SEGMENT_ON);
+  digitalWrite(seg_minC1, SEGMENT_ON);
+  digitalWrite(seg_minD1, SEGMENT_OFF);
+  digitalWrite(seg_minE1, SEGMENT_OFF);
+  digitalWrite(seg_minF1, SEGMENT_OFF);
+  digitalWrite(seg_minG1, SEGMENT_OFF);
+ }
+  else if (rtc.minute()-(rtc.minute() %10) == 20){
+  digitalWrite(seg_minA1, SEGMENT_ON);
+  digitalWrite(seg_minB1, SEGMENT_ON);
+  digitalWrite(seg_minC1, SEGMENT_OFF);
+  digitalWrite(seg_minD1, SEGMENT_ON);
+  digitalWrite(seg_minE1, SEGMENT_ON);
+  digitalWrite(seg_minF1, SEGMENT_OFF);
+  digitalWrite(seg_minG1, SEGMENT_ON);
+ }
+  else if (rtc.minute()-(rtc.minute() %10) == 30){
+  digitalWrite(seg_minA1, SEGMENT_ON);
+  digitalWrite(seg_minB1, SEGMENT_ON);
+  digitalWrite(seg_minC1, SEGMENT_ON);
+  digitalWrite(seg_minD1, SEGMENT_ON);
+  digitalWrite(seg_minE1, SEGMENT_OFF);
+  digitalWrite(seg_minF1, SEGMENT_OFF);
+  digitalWrite(seg_minG1, SEGMENT_ON);
+ }
+ else if (rtc.minute()-(rtc.minute() %10) == 40){
+  digitalWrite(seg_minA1, SEGMENT_OFF);
+  digitalWrite(seg_minB1, SEGMENT_ON);
+  digitalWrite(seg_minC1, SEGMENT_ON);
+  digitalWrite(seg_minD1, SEGMENT_OFF);
+  digitalWrite(seg_minE1, SEGMENT_OFF);
+  digitalWrite(seg_minF1, SEGMENT_ON);
+  digitalWrite(seg_minG1, SEGMENT_ON);
+ }
+  else if (rtc.minute()-(rtc.minute() %10) == 50){
+  digitalWrite(seg_minA1, SEGMENT_ON);
+  digitalWrite(seg_minB1, SEGMENT_OFF);
+  digitalWrite(seg_minC1, SEGMENT_ON);
+  digitalWrite(seg_minD1, SEGMENT_ON);
+  digitalWrite(seg_minE1, SEGMENT_OFF);
+  digitalWrite(seg_minF1, SEGMENT_ON);
+  digitalWrite(seg_minG1, SEGMENT_ON);
+ } 
+ if(digitalRead(button1)==HIGH)
+ {
+  AddSecond();
+  delay(100);
+ }
+ if(digitalRead(button2)==HIGH)
+ {
+  SubtractSecond();
+  delay(100);
+ }
+}
+void printTime()
+{
+  Serial.print(String(rtc.hour()) + ":"); // Print hour
+  if (rtc.minute() < 10)
+    Serial.print('0'); // Print leading '0' for minute
+  Serial.print(String(rtc.minute()) + ":"); // Print minute
+  if (rtc.second() < 10)
+    Serial.print('0'); // Print leading '0' for second
+  Serial.print(String(rtc.second())); // Print second
+
+  if (rtc.is12Hour()) // If we're in 12-hour mode
+  {
+    // Use rtc.pm() to read the AM/PM state of the hour
+    if (rtc.pm()) Serial.print(" PM"); // Returns true if PM
+    else Serial.print(" AM");
+  }
+  
+  Serial.print(" | ");
+
+  // Few options for printing the day, pick one:
+  Serial.print(rtc.dayStr()); // Print day string
+  //Serial.print(rtc.dayC()); // Print day character
+  //Serial.print(rtc.day()); // Print day integer (1-7, Sun-Sat)
+  Serial.print(" - ");
+#ifdef PRINT_USA_DATE
+  Serial.print(String(rtc.month()) + "/" +   // Print month
+                 String(rtc.date()) + "/");  // Print date
+#else
+  Serial.print(String(rtc.date()) + "/" +    // (or) print date
+                 String(rtc.month()) + "/"); // Print month
+#endif
+  Serial.println(String(rtc.year()));        // Print year
+}
+void AddSecond()
+{
+  rtc.update();
+  rtc.second()+1;
+  delay(100);
+}
+void SubtractSecond()
+{
+  rtc.update();
+  rtc.second()-1;
+  delay(100);
+}
